@@ -1,5 +1,5 @@
 /*
-InvertableSoftwareSerial.h (formerly NewSoftSerial.h) - 
+InvertibleSoftwareSerial.h (formerly NewSoftSerial.h) - 
 Multi-instance software serial library for Arduino/Wiring
 -- Interrupt-driven receive and other improvements by ladyada
    (http://ladyada.net)
@@ -47,7 +47,7 @@ http://arduiniana.org.
 #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #endif
 
-class InvertableSoftwareSerial : public Stream
+class InvertibleSoftwareSerial : public Stream
 {
 private:
   // per object data
@@ -73,7 +73,7 @@ private:
   static uint8_t _receive_buffer[_SS_MAX_RX_BUFF]; 
   static volatile uint8_t _receive_buffer_tail;
   static volatile uint8_t _receive_buffer_head;
-  static InvertableSoftwareSerial *active_object;
+  static InvertibleSoftwareSerial *active_object;
 
   // private methods
   inline void recv() __attribute__((__always_inline__));
@@ -90,8 +90,8 @@ private:
 
 public:
   // public methods
-  InvertableSoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_rx = false, bool inverse_tx = false);
-  ~InvertableSoftwareSerial();
+  InvertibleSoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_rx = false, bool inverse_tx = false);
+  ~InvertibleSoftwareSerial();
   void begin(long speed);
   bool listen();
   void end();
@@ -128,7 +128,7 @@ public:
 
 
 /*
-InvertableSoftwareSerial.cpp (formerly NewSoftSerial.cpp) - 
+InvertibleSoftwareSerial.cpp (formerly NewSoftSerial.cpp) - 
 Multi-instance software serial library for Arduino/Wiring
 -- Interrupt-driven receive and other improvements by ladyada
    (http://ladyada.net)
@@ -176,10 +176,10 @@ http://arduiniana.org.
 //
 // Statics
 //
-InvertableSoftwareSerial *InvertableSoftwareSerial::active_object = 0;
-uint8_t InvertableSoftwareSerial::_receive_buffer[_SS_MAX_RX_BUFF]; 
-volatile uint8_t InvertableSoftwareSerial::_receive_buffer_tail = 0;
-volatile uint8_t InvertableSoftwareSerial::_receive_buffer_head = 0;
+InvertibleSoftwareSerial *InvertibleSoftwareSerial::active_object = 0;
+uint8_t InvertibleSoftwareSerial::_receive_buffer[_SS_MAX_RX_BUFF]; 
+volatile uint8_t InvertibleSoftwareSerial::_receive_buffer_tail = 0;
+volatile uint8_t InvertibleSoftwareSerial::_receive_buffer_head = 0;
 
 //
 // Debugging
@@ -207,13 +207,13 @@ inline void DebugPulse(uint8_t, uint8_t) {}
 //
 
 /* static */ 
-inline void InvertableSoftwareSerial::tunedDelay(uint16_t delay) { 
+inline void InvertibleSoftwareSerial::tunedDelay(uint16_t delay) { 
   _delay_loop_2(delay);
 }
 
 // This function sets the current object as the "listening"
 // one and returns true if it replaces another 
-bool InvertableSoftwareSerial::listen()
+bool InvertibleSoftwareSerial::listen()
 {
   if (!_rx_delay_stopbit)
     return false;
@@ -235,7 +235,7 @@ bool InvertableSoftwareSerial::listen()
 }
 
 // Stop listening. Returns true if we were actually listening.
-bool InvertableSoftwareSerial::stopListening()
+bool InvertibleSoftwareSerial::stopListening()
 {
   if (active_object == this)
   {
@@ -249,7 +249,7 @@ bool InvertableSoftwareSerial::stopListening()
 //
 // The receive routine called by the interrupt handler
 //
-void InvertableSoftwareSerial::recv()
+void InvertibleSoftwareSerial::recv()
 {
 
 #if GCC_VERSION < 40302
@@ -335,7 +335,7 @@ void InvertableSoftwareSerial::recv()
 #endif
 }
 
-uint8_t InvertableSoftwareSerial::rx_pin_read()
+uint8_t InvertibleSoftwareSerial::rx_pin_read()
 {
   return *_receivePortRegister & _receiveBitMask;
 }
@@ -345,7 +345,7 @@ uint8_t InvertableSoftwareSerial::rx_pin_read()
 //
 
 /* static */
-inline void InvertableSoftwareSerial::handle_interrupt()
+inline void InvertibleSoftwareSerial::handle_interrupt()
 {
   if (active_object)
   {
@@ -356,7 +356,7 @@ inline void InvertableSoftwareSerial::handle_interrupt()
 #if defined(PCINT0_vect)
 ISR(PCINT0_vect)
 {
-  InvertableSoftwareSerial::handle_interrupt();
+  InvertibleSoftwareSerial::handle_interrupt();
 }
 #endif
 
@@ -375,7 +375,7 @@ ISR(PCINT3_vect, ISR_ALIASOF(PCINT0_vect));
 //
 // Constructor
 //
-InvertableSoftwareSerial::InvertableSoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_rx, bool inverse_tx) : 
+InvertibleSoftwareSerial::InvertibleSoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_rx, bool inverse_tx) : 
   _rx_delay_centering(0),
   _rx_delay_intrabit(0),
   _rx_delay_stopbit(0),
@@ -391,12 +391,12 @@ InvertableSoftwareSerial::InvertableSoftwareSerial(uint8_t receivePin, uint8_t t
 //
 // Destructor
 //
-InvertableSoftwareSerial::~InvertableSoftwareSerial()
+InvertibleSoftwareSerial::~InvertibleSoftwareSerial()
 {
   end();
 }
 
-void InvertableSoftwareSerial::setTX(uint8_t tx)
+void InvertibleSoftwareSerial::setTX(uint8_t tx)
 {
   // First write, then set output. If we do this the other way around,
   // the pin would be output low for a short while before switching to
@@ -409,7 +409,7 @@ void InvertableSoftwareSerial::setTX(uint8_t tx)
   _transmitPortRegister = portOutputRegister(port);
 }
 
-void InvertableSoftwareSerial::setRX(uint8_t rx)
+void InvertibleSoftwareSerial::setRX(uint8_t rx)
 {
   pinMode(rx, INPUT);
   if (!_inverse_rx)
@@ -420,7 +420,7 @@ void InvertableSoftwareSerial::setRX(uint8_t rx)
   _receivePortRegister = portInputRegister(port);
 }
 
-uint16_t InvertableSoftwareSerial::subtract_cap(uint16_t num, uint16_t sub) {
+uint16_t InvertibleSoftwareSerial::subtract_cap(uint16_t num, uint16_t sub) {
   if (num > sub)
     return num - sub;
   else
@@ -431,7 +431,7 @@ uint16_t InvertableSoftwareSerial::subtract_cap(uint16_t num, uint16_t sub) {
 // Public methods
 //
 
-void InvertableSoftwareSerial::begin(long speed)
+void InvertibleSoftwareSerial::begin(long speed)
 {
   _rx_delay_centering = _rx_delay_intrabit = _rx_delay_stopbit = _tx_delay = 0;
 
@@ -504,7 +504,7 @@ void InvertableSoftwareSerial::begin(long speed)
   listen();
 }
 
-void InvertableSoftwareSerial::setRxIntMsk(bool enable)
+void InvertibleSoftwareSerial::setRxIntMsk(bool enable)
 {
     if (enable)
       *_pcint_maskreg |= _pcint_maskvalue;
@@ -512,14 +512,14 @@ void InvertableSoftwareSerial::setRxIntMsk(bool enable)
       *_pcint_maskreg &= ~_pcint_maskvalue;
 }
 
-void InvertableSoftwareSerial::end()
+void InvertibleSoftwareSerial::end()
 {
   stopListening();
 }
 
 
 // Read data from buffer
-int InvertableSoftwareSerial::read()
+int InvertibleSoftwareSerial::read()
 {
   if (!isListening())
     return -1;
@@ -534,7 +534,7 @@ int InvertableSoftwareSerial::read()
   return d;
 }
 
-int InvertableSoftwareSerial::available()
+int InvertibleSoftwareSerial::available()
 {
   if (!isListening())
     return 0;
@@ -542,7 +542,7 @@ int InvertableSoftwareSerial::available()
   return (_receive_buffer_tail + _SS_MAX_RX_BUFF - _receive_buffer_head) % _SS_MAX_RX_BUFF;
 }
 
-size_t InvertableSoftwareSerial::write(uint8_t b)
+size_t InvertibleSoftwareSerial::write(uint8_t b)
 {
   if (_tx_delay == 0) {
     setWriteError();
@@ -597,12 +597,12 @@ size_t InvertableSoftwareSerial::write(uint8_t b)
   return 1;
 }
 
-void InvertableSoftwareSerial::flush()
+void InvertibleSoftwareSerial::flush()
 {
   // There is no tx buffering, simply return
 }
 
-int InvertableSoftwareSerial::peek()
+int InvertibleSoftwareSerial::peek()
 {
   if (!isListening())
     return -1;
