@@ -29,6 +29,12 @@ The latest version of this library can always be found at
 http://arduiniana.org.
 */
 
+/*
+  Define INVERTIBLE_SOFTWARE_SERIAL_REMOVE_ISR if you only want to send data
+  but NOT receive. This will prevent the usage of the ISRs and so,
+  will keep them untouched to be used for other libraries.
+*/
+
 #ifndef InvertableSoftwareSerial_h
 #define InvertableSoftwareSerial_h
 
@@ -352,6 +358,7 @@ inline void InvertibleSoftwareSerial::handle_interrupt()
   }
 }
 
+#ifndef INVERTIBLE_SOFTWARE_SERIAL_REMOVE_ISR
 #if defined(PCINT0_vect)
 ISR(PCINT0_vect)
 {
@@ -369,6 +376,7 @@ ISR(PCINT2_vect, ISR_ALIASOF(PCINT0_vect));
 
 #if defined(PCINT3_vect)
 ISR(PCINT3_vect, ISR_ALIASOF(PCINT0_vect));
+#endif
 #endif
 
 //
